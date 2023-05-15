@@ -1,7 +1,9 @@
+import IUsers from "@/interfaces/IUser";
+import { GetStaticProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-const Users = ({ users }: any) => {
+const Users = ({ users }: { users: IUsers[] }) => {
   const router = useRouter();
   return (
     <>
@@ -12,7 +14,7 @@ const Users = ({ users }: any) => {
         back
       </button>
       <ul className="flex flex-col w-72 ml-5">
-        {users.map((user: { name: string; id: number }) => (
+        {users.map((user) => (
           <Link href={`/users/${user.id}`} key={user.id}>
             <li className="  p-3 bg-slate-700 my-2 text-white">{user.name}</li>
           </Link>
@@ -23,12 +25,13 @@ const Users = ({ users }: any) => {
 };
 
 export default Users;
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const res = await fetch("https://jsonplaceholder.typicode.com/users");
   const users = await res.json();
+
   return {
     props: {
       users,
     },
   };
-}
+};

@@ -1,13 +1,21 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import { useRouter } from "next/router";
 
-const inter = Inter({ subsets: ["latin"] });
+import Button from "@/components/Button";
+import IComment from "@/interfaces/IComment";
+import { GetStaticProps } from "next";
 
-export default function Home({ data }: any) {
+export default function Home({ data }: { data: IComment[] }) {
   const comments = data.slice(0, 10);
-  const router = useRouter();
+  const Menu = () => {
+    return (
+      <>
+        <Button route="/users">Users</Button>
+        <Button route="/albums">Albums</Button>
+        <Button route="/pics">Pics</Button>
+        <Button route="/todos">Todos</Button>
+      </>
+    );
+  };
   return (
     <>
       <Head>
@@ -17,31 +25,24 @@ export default function Home({ data }: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <button
-          className="mt-5 bg-green-700 text-white ml-5 rounded-md p-2 text-3xl font-bold"
-          onClick={() => router.push("/users")}
-        >
-          users
-        </button>
+        <Menu />
         <ul>
-          {comments.map(
-            (comment: { id: number; body: string; postId: number }) => (
-              <>
-                <span>{comment.postId}:</span>
-                <li key={comment.id}>{comment.body}</li>
-              </>
-            )
-          )}
+          {comments.map((comment) => (
+            <>
+              <span>{comment.postId}:</span>
+              <li key={comment.id}>{comment.body}</li>
+            </>
+          ))}
         </ul>
       </main>
     </>
   );
 }
-export async function getStaticProps() {
+
+export const getStaticProps: GetStaticProps = async () => {
   const res = await fetch("https://jsonplaceholder.typicode.com/comments");
   const data = await res.json();
-
   return {
     props: { data },
   };
-}
+};

@@ -1,7 +1,11 @@
 import { useRouter } from "next/router";
-
-const User = ({ user }: { user: { email: string } }) => {
+import { GetStaticProps } from "next";
+import IUsers from "@/interfaces/IUser";
+const User = ({ user }: { user: IUsers }) => {
   const router = useRouter();
+  if (router.isFallback) {
+    return <>fallback</>;
+  }
   return (
     <>
       <button
@@ -20,26 +24,26 @@ export default User;
 export async function getStaticPaths() {
   const res = await fetch("https://jsonplaceholder.typicode.com/users");
   const users = await res.json();
-  const paths = users.map((user: { id: number }) => ({
+  const paths = users.slice(0, 4).map((user: { id: number }) => ({
     params: { userId: user.id.toString() },
   }));
-  console.log(paths);
 
   return {
     paths,
-    fallback: false,
+    fallback: "blocking",
   };
 }
 
-export async function getStaticProps(context: any) {
+export const getStaticProps: GetStaticProps = async (context) => {
   const { params } = context;
 
   const res = await fetch(
-    `https://jsonplaceholder.typicode.com/users/${params.userId}`
+    `https://jsonplaceholder.typicode.com/users/${params?.userId}`
   );
 
   const user = await res.json();
   return {
     props: { user },
+    revalidate: 10,
   };
-}
+};
